@@ -11,7 +11,11 @@ import {
 } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom/cjs/react-router-dom";
 
+import { useSetCurrentUser } from "../../context/CurrentUserContext";
+
 const SignInForm = () => {
+  const setCurrentUser = useSetCurrentUser();
+
   const [signInData, setSignInData] = useState({
     username: "",
     password: "",
@@ -30,9 +34,12 @@ const SignInForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("/dj-rest-auth/login/", signInData);
-      console.log(signInData);
-      history.push("/");
+      const { data } = await axios.post("/dj-rest-auth/login/", signInData);
+      console.log(data);
+      setCurrentUser(data.user);
+      console.log(data.user);
+      // history.push("/");
+      history.push("/set_role");
     } catch (error) {
       console.log(errors);
       setErrors(error.response?.data);
