@@ -6,13 +6,24 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter as Router } from "react-router-dom";
 import { CurrentUserProvider } from "./context/CurrentUserContext";
 import { CurrentUserProfileProvider } from "./context/CurrentUserProfileContext";
+import { LearningCategoryProvider } from "./context/LearninCategoryContext";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Router>
     <CurrentUserProvider>
       <CurrentUserProfileProvider>
-        <App />
+        <LearningCategoryProvider>
+          <App />
+          <ToastContainer
+            position="top-right"
+            theme="dark"
+            autoClose="3000"
+            style={{ padding: "30px 10px", width: "45%" }}
+          />
+        </LearningCategoryProvider>
       </CurrentUserProfileProvider>
     </CurrentUserProvider>
   </Router>

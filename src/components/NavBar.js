@@ -1,4 +1,5 @@
-import React from "react";
+// import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 
@@ -19,29 +20,72 @@ import {
 import Avatar from "./Avatar";
 import axios from "axios";
 import { axiosReq } from "../api/axiosDefault";
+import {
+  useCurrentUserProfile,
+  useSetCurrentUserProfile,
+} from "../context/CurrentUserProfileContext";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { removeTokenTimestamp } from "../utils/utils";
 const NavBar = () => {
+  console.log("mounting");
   const currentUser = useCurrentUser();
+  const currentUserProfile = useCurrentUserProfile();
+  const [showLessonIcon, setShowLessonIcon] = useState(false);
+  const history = useHistory();
+
+  // navbar toggler
+  const [isOpen, setIsOpen] = useState(false);
+  // const navMenu = useRef();
 
   // logout functionality
   const setCurrentUser = useSetCurrentUser();
+
+  const setCurrentUserProfile = useSetCurrentUserProfile();
+
   const handleSignOut = async () => {
     try {
       await axios.post("/dj-rest-auth/logout/");
       setCurrentUser(null);
+      setCurrentUserProfile(null);
+      removeTokenTimestamp();
     } catch (error) {
       console.log(error);
     }
   };
+  useEffect(() => {
+    // handling clicks to collapse navbar if its clicked inside
+    // or outside of it
+    const handleMenu = (e) => {
+      setIsOpen(false);
+    };
+    document.addEventListener("mousedown", handleMenu);
+
+    // The effect will run whenever currentUserProfile changes
+    console.log("navbar useefect");
+    console.log("currentUserProfile in navbar:", currentUserProfile);
+    if (currentUserProfile && currentUserProfile?.role === "Mentor") {
+      // Set state to trigger a re-render and display the addLessonIcon
+      setShowLessonIcon(true);
+    } else {
+      setShowLessonIcon(false);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleMenu);
+    };
+  }, [currentUserProfile]);
+
+  console.log(isOpen);
 
   const addLessonIcon = (
-    <NavLink to="/lesson/add" className="text-white mx-5 ">
+    <NavLink to="/lesson/create" className="text-white mx-5 ">
       <MdPostAdd />
       Add lesson
     </NavLink>
   );
   const loggedInIcons = (
     <>
-      <NavLink to="inbox" className="text-white m-2">
+      <NavLink to="/inbox" className="text-white m-2">
         <IoIosChatboxes />
         inbox
       </NavLink>
@@ -71,8 +115,13 @@ const NavBar = () => {
 
   return (
     <Navbar bg="dark" expand="md" fixed="top">
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
+      <Navbar.Toggle
+        onClick={() => {
+          setIsOpen(!isOpen);
+        }}
+        aria-controls="basic-navbar-nav"
+      />
+      <Navbar.Collapse id="basic-navbar-nav" in={isOpen}>
         <Nav className="mr-auto">
           <NavLink to="/" className="text-white m-1 py-1">
             Home
@@ -86,7 +135,7 @@ const NavBar = () => {
           {currentUser ? loggedInIcons : loggedOutIcons}
         </Nav>
       </Navbar.Collapse>
-      {currentUser && addLessonIcon}
+      {showLessonIcon && currentUserProfile?.role === "Mentor" && addLessonIcon}
       <NavLink to="/">
         <Navbar.Brand>
           <img src={logo} height={45} alt="logo" />

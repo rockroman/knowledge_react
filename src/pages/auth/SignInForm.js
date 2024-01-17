@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Col,
   Button,
@@ -12,9 +12,11 @@ import {
 import { Link, useHistory } from "react-router-dom/cjs/react-router-dom";
 
 import { useSetCurrentUser } from "../../context/CurrentUserContext";
-
+import { useCurrentUserProfile } from "../../context/CurrentUserProfileContext";
+import { setTokenTimestamp } from "../../utils/utils";
 const SignInForm = () => {
   const setCurrentUser = useSetCurrentUser();
+  const currentUserProfile = useCurrentUserProfile();
 
   const [signInData, setSignInData] = useState({
     username: "",
@@ -37,8 +39,8 @@ const SignInForm = () => {
       const { data } = await axios.post("/dj-rest-auth/login/", signInData);
       console.log(data);
       setCurrentUser(data.user);
+      setTokenTimestamp(data);
       console.log(data.user);
-      // history.push("/");
       history.push("/set_role");
     } catch (error) {
       console.log(errors);

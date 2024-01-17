@@ -23,6 +23,7 @@ export const CurrentUserProfileProvider = ({ children }) => {
           `/profile/${currentUser.profile_id}/`
         );
         setUserProfile(data);
+
         console.log(data);
         setLoading(false);
       }
@@ -33,6 +34,7 @@ export const CurrentUserProfileProvider = ({ children }) => {
   };
 
   useEffect(() => {
+    // const token = localStorage.getItem("Role  set");
     if (currentUser) {
       fetchData();
     }
